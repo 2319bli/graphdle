@@ -266,14 +266,14 @@ describe("interpretable grading", () => {
     expect(p.quality).toBe(0.5);
   });
   it("awards the screenshot's even and unbounded-above claims full property credit", () => {
-    const q = {
+    const q: PlotQuestion = {
       ...functionQuestion("screenshot", "Medium", "modulus"),
       title: "y = 3|x| − 1",
       reference: sampleFunction((x) => 3 * Math.abs(x) - 1, DEFAULT_VIEW),
       features: {
         xroots: [point(-1 / 3, 0), point(1 / 3, 0)],
         yroots: [point(0, -1)],
-        turns: [point(0, -1)],
+        turns: [{ x: 0, y: -1, kind: "corner", extremum: "minimum" }],
         asymptotes: [],
       },
       properties: ["continuous", "bounded below", "even"],
@@ -289,13 +289,11 @@ describe("interpretable grading", () => {
     );
     expect(
       grade.breakdown.find((b) => b.label === "Turning points")?.score,
-    ).toBe(0);
+    ).toBe(15);
     expect(
       grade.breakdown.find((b) => b.label === "Turning points")?.message,
-    ).toContain("No purple star markers were placed");
-    expect(grade.feedback.some((f) => f.includes("Turning point tool"))).toBe(
-      true,
-    );
+    ).toContain("Recognised from your sketch");
+    expect(grade.score).toBe(100);
     expect(gradePlot(q, perfect(q), properties).score).toBe(100);
   });
   it("accepts equivalent descriptions of unboundedness once", () => {

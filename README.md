@@ -35,7 +35,7 @@ Each standard game contains five seeded, parameterised questions from a single m
 
 The tools include freehand curves, straight dotted asymptotes, intercept and turning-point markers, open/closed endpoints, selection/movement, eraser, undo, redo, and clear. Coordinates are mathematical: independent axis scaling, ranges, panning and zooming do not alter the answer. Use B for brush, E for eraser, H for pan, Ctrl/Command Z for undo, and Shift Ctrl/Command Z for redo.
 
-The default rubric is curve 40, intercepts 15, turning points 15, asymptotes 15, properties 15. Categories without required features redistribute their points to the curve; holes/endpoints use 10 of the curve points. Missing features incur no penalty if they do not exist, while invented features do. Two distinct verified properties normally earn full property credit (one when only one is verified for that family). Feature marks require their respective tools: drawing a vertex or placing a y-intercept circle does not replace a purple turning-point star. Place both markers where features coincide.
+The default rubric is curve 40, intercepts 15, turning points 15, asymptotes 15, properties 15. Categories without required features redistribute their points to the curve; holes/endpoints use 10 of the curve points. Missing features incur no penalty if they do not exist, while invented features do. Two distinct verified properties normally earn full property credit (one when only one is verified for that family). Sharp corners and cusps are recognised directly from the sketch; stars there are optional. Smooth turning points still require purple stars. A correct sharp vertex needs nearby curve geometry on both sides turning in the expected direction, not just an intercept marker or a line passing through it. When a smooth extremum is also an intercept, place both markers.
 
 ### Graph Theory
 
@@ -80,6 +80,7 @@ Completed standard games store dates, mode, difficulty, totals and per-question 
 - `src/math/complex.ts` — complex locus generators and supported custom parsing
 - `src/math/geometry.ts` — sampling, coordinate transforms and geometric comparison
 - `src/math/grading.ts` — deterministic rubric, feature matching and property rules
+- `src/math/turningPoints.ts` — automatic recognition of sharp extrema with freehand tolerance
 - `src/components/Plane.tsx` — mathematical drawing canvas and view controls
 - `src/components/NetworkCanvas.tsx` — graph editor and prompt renderers
 - `src/components/useUndo.ts` — undo/redo history

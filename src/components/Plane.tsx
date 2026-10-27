@@ -394,7 +394,7 @@ export function Plane({
     asymptote: "Drag between two points for a straight dotted asymptote.",
     xroot: "Click to place an x-intercept. Snaps to the x-axis.",
     yroot: "Click to place a y-intercept. Snaps to the y-axis.",
-    turn: "Place a purple star at each local maximum or minimum, including corners. Add a star even if an intercept marker is already there.",
+    turn: "Place purple stars at smooth turning points. Corners and cusps are recognised from the sketch automatically; stars there are optional.",
     move: "Drag a marker or curve to reposition it.",
     erase: "Click a stroke or marker to delete it. Shortcut E.",
     pan: "Drag the plane. Scroll to zoom. Shortcut H.",

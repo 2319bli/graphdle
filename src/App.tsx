@@ -848,10 +848,10 @@ export default function App() {
               <p>{q.detail}</p>
               {q.mode === "function" && !q.curveOnly && !q.practiceOnly && (
                 <p className="feature-instructions">
-                  Feature marks are separate from the curve: use triangles for
-                  x-intercepts, circles for y-intercepts, and purple stars for
-                  local extrema (including corners). When features coincide,
-                  place each marker at the same point.
+                  Corners and cusps are recognised from your sketch
+                  automatically. Use purple stars for smooth turning points,
+                  triangles for x-intercepts, and circles for y-intercepts. At a
+                  smooth extremum that is also an intercept, place both markers.
                 </p>
               )}
               {q.mode === "network" && <NetworkPrompt question={q} />}
@@ -1313,10 +1313,11 @@ export default function App() {
             <h2 id="about-title">The mathematics behind the marks.</h2>
             <p>
               <b>Functions:</b> 40 points for the curve, 15 each for intercepts,
-              turning points, asymptotes, and properties. Missing feature
-              categories redistribute points to the curve. Holes and endpoints
-              use 10 curve points when needed. Markers refer only to the
-              original assessment window.
+              turning points, asymptotes, and properties. Corners and cusps are
+              recognised from the sketch; smooth turning points require a purple
+              star. Missing feature categories redistribute points to the curve.
+              Holes and endpoints use 10 curve points when needed. Markers refer
+              only to the original assessment window.
             </p>
             <p>
               Curve scores compare mathematical geometry in both directions with

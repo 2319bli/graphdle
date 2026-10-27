@@ -3,6 +3,7 @@ import {
   emptyFeatures,
   type Difficulty,
   type PlotQuestion,
+  type TurningPoint,
 } from "../types";
 import { inside, parametric, point, sampleFunction } from "./geometry";
 import { integer, random, shuffle } from "./random";
@@ -47,7 +48,12 @@ export function functionQuestion(
   let breaks: number[] = [];
   const xr = (x: number) => q.features.xroots.push(point(x, 0));
   const yr = (y: number) => q.features.yroots.push(point(0, y));
-  const turn = (x: number, y: number) => q.features.turns.push(point(x, y));
+  const turn = (
+    x: number,
+    y: number,
+    kind: TurningPoint["kind"] = "smooth",
+    extremum?: TurningPoint["extremum"],
+  ) => q.features.turns.push({ x, y, kind, extremum });
   const vertical = (x: number) =>
     q.features.asymptotes.push([point(x, q.view.ymin), point(x, q.view.ymax)]);
   const horizontal = (y: number) =>
@@ -195,7 +201,7 @@ export function functionQuestion(
       xr(h - b / a);
       xr(h + b / a);
       yr(fn(0));
-      turn(h, -b);
+      turn(h, -b, "corner", "minimum");
       q.properties = ["continuous", "bounded below"];
       q.falseProperties = [
         "differentiable",
@@ -216,7 +222,7 @@ export function functionQuestion(
         if (k < 0) xr(h + Math.sqrt(-k));
       }
       yr(fn(0));
-      turn(h, k);
+      turn(h, k, "corner", "minimum");
       q.properties = ["continuous", "bounded below"];
       q.falseProperties = [
         "differentiable",

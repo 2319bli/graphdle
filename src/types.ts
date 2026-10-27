@@ -30,10 +30,15 @@ export interface Item {
   points: Point[];
   dashed?: boolean;
 }
+export interface TurningPoint extends Point {
+  /** Smooth extrema require a star; corners/cusps can be read from the sketch. */
+  kind?: "smooth" | "corner" | "cusp";
+  extremum?: "minimum" | "maximum";
+}
 export interface Features {
   xroots: Point[];
   yroots: Point[];
-  turns: Point[];
+  turns: TurningPoint[];
   asymptotes: Point[][];
   open?: Point[];
   closed?: Point[];

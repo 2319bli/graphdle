@@ -24,10 +24,11 @@ import {
   edgeKey,
   isSimple,
 } from "./networks";
+import { cornerSketchQuality, isSketchTurningPoint } from "./turningPoints";
+
 export const TOLERANCE = { curve: 0.025, marker: 0.045 };
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
-export function matchPoints(actual: Point[], expected: Point[], view: View) {
-  if (!expected.length) return actual.length ? 0 : 1;
+function matchPointQualities(actual: Point[], expected: Point[], view: View) {
   const candidates = actual
     .flatMap((p, i) =>
       expected.map((q, j) => ({ i, j, d: normalizedDistance(p, q, view) })),
@@ -35,14 +36,97 @@ export function matchPoints(actual: Point[], expected: Point[], view: View) {
     .sort((a, b) => a.d - b.d);
   const usedA = new Set<number>(),
     usedB = new Set<number>();
-  let quality = 0;
-  for (const c of candidates)
+  const scores = expected.map(() => 0);
+  for (const c of candidates) {
     if (c.d < TOLERANCE.marker && !usedA.has(c.i) && !usedB.has(c.j)) {
       usedA.add(c.i);
       usedB.add(c.j);
-      quality += Math.max(0, 1 - (c.d / TOLERANCE.marker) ** 2);
+      scores[c.j] = Math.max(0, 1 - (c.d / TOLERANCE.marker) ** 2);
     }
-  return quality / Math.max(actual.length, expected.length);
+  }
+  return { scores, unmatched: actual.length - usedA.size };
+}
+export function matchPoints(actual: Point[], expected: Point[], view: View) {
+  if (!expected.length) return actual.length ? 0 : 1;
+  const { scores } = matchPointQualities(actual, expected, view);
+  return (
+    scores.reduce((sum, score) => sum + score, 0) /
+    Math.max(actual.length, expected.length)
+  );
+}
+
+function assessTurningPoints(
+  q: PlotQuestion,
+  paths: Point[][],
+  markers: Point[],
+) {
+  const turns = q.features.turns;
+  const manual = matchPointQualities(markers, turns, q.view);
+  const automatic = turns.map((t) =>
+    cornerSketchQuality(paths, q.reference, t, q.view),
+  );
+  const scores = turns.map((_, i) => Math.max(manual.scores[i], automatic[i]));
+  const sharp = turns.filter(isSketchTurningPoint);
+  const smooth = turns.filter((t) => !isSketchTurningPoint(t));
+  const detected = turns.filter(
+    (t, i) => isSketchTurningPoint(t) && automatic[i] > 0,
+  );
+  const missingSharp = turns.filter(
+    (t, i) => isSketchTurningPoint(t) && scores[i] === 0,
+  );
+  const missingSmooth = turns.filter(
+    (t, i) => !isSketchTurningPoint(t) && manual.scores[i] === 0,
+  );
+  const messages: string[] = [];
+  if (sharp.length) {
+    messages.push(
+      `Corners and cusps are read automatically from the sketch; a star is optional. Expected: ${formatPoints(sharp)}.`,
+    );
+    if (detected.length)
+      messages.push(`Recognised from your sketch: ${formatPoints(detected)}.`);
+    if (missingSharp.length)
+      messages.push(
+        `Sharp turning points not recognised: ${formatPoints(missingSharp)}. Draw both sides meeting near each vertex and turning in the correct direction.`,
+      );
+  }
+  if (smooth.length) {
+    messages.push(
+      `Smooth turning points still require purple star markers: ${formatPoints(smooth)}.`,
+    );
+    if (missingSmooth.length)
+      messages.push(
+        `Missing or misplaced stars: ${formatPoints(missingSmooth)}.`,
+      );
+  }
+  if (manual.unmatched)
+    messages.push(
+      `${manual.unmatched} extra or misplaced star marker(s) reduced this score.`,
+    );
+  const feedback = [
+    ...(detected.length
+      ? [
+          `Sharp turning points recognised automatically from your sketch: ${formatPoints(detected)}.`,
+        ]
+      : []),
+    ...(missingSharp.length
+      ? [
+          `The sketch did not establish the sharp turning point(s) at ${formatPoints(missingSharp)}. Draw both sides of each corner or cusp; no star is required.`,
+        ]
+      : []),
+    ...(missingSmooth.length
+      ? [
+          `Smooth turning points need purple star markers. Mark ${formatPoints(missingSmooth)} with the Turning point tool.`,
+        ]
+      : []),
+  ];
+  return {
+    quality: turns.length
+      ? scores.reduce((sum, score) => sum + score, 0) /
+        (turns.length + manual.unmatched)
+      : 0,
+    message: messages.join(" "),
+    feedback,
+  };
 }
 const aliases: Record<string, string[]> = {
   even: [
@@ -264,6 +348,7 @@ export function gradePlot(
     const intercepts = q.features.xroots.length + q.features.yroots.length;
     const markers = (kind: Item["kind"]) =>
       items.filter((i) => i.kind === kind).map((i) => i.points[0]);
+    const turningPoints = assessTurningPoints(q, paths, markers("turn"));
     const ends =
       (q.features.open?.length || 0) + (q.features.closed?.length || 0);
     let curveMax = q.curveOnly ? 100 : 40;
@@ -291,9 +376,9 @@ export function gradePlot(
       if (q.features.turns.length)
         allocations.push({
           label: "Turning points",
-          quality: matchPoints(markers("turn"), q.features.turns, q.view),
+          quality: turningPoints.quality,
           max: 15,
-          message: `${markers("turn").length ? "Purple star markers are matched to local extrema; misplaced or extra stars reduce this score." : "No purple star markers were placed. The curve and intercept markers are scored separately."} Place a purple star at each local extremum, including a corner or an extremum that is also an intercept. Local extrema: ${formatPoints(q.features.turns)}.`,
+          message: turningPoints.message,
         });
       else curveMax += 15;
       if (q.features.asymptotes.length)
@@ -372,11 +457,7 @@ export function gradePlot(
             ? "Your overall shape is close. Refine the curve near the highlighted features."
             : "Your curve follows the reference closely.",
         q.explanation,
-        ...(!q.curveOnly && q.features.turns.length && !markers("turn").length
-          ? [
-              `No purple star markers were placed, so turning-point marks were not awarded. Mark ${formatPoints(q.features.turns)} with the Turning point tool, even if an intercept marker is already there.`,
-            ]
-          : []),
+        ...(!q.curveOnly ? turningPoints.feedback : []),
       ],
       props.claims,
     );
