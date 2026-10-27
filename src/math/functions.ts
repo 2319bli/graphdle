@@ -516,6 +516,47 @@ export function functionQuestion(
     default:
       throw new Error("Unsupported function family");
   }
+  // Global y-bounds established analytically for these parameterised families
+  // (a and b are positive). These concern the full stated domain, not the viewport.
+  const upperBounded = [
+    "sine",
+    "trig",
+    "logratio",
+    "bounded",
+    "ellipse",
+    "parametric",
+    "oscillation",
+  ].includes(f);
+  const lowerBounded = [
+    "quadratic",
+    "exponential",
+    "sine",
+    "trig",
+    "modulus",
+    "piecewise",
+    "decay",
+    "bounded",
+    "ellipse",
+    "parametric",
+    "power",
+    "oscillation",
+  ].includes(f);
+  for (const [side, hasBound] of [
+    ["above", upperBounded],
+    ["below", lowerBounded],
+  ] as const) {
+    q.properties.push(`${hasBound ? "bounded" : "unbounded"} ${side}`);
+    q.falseProperties = [
+      ...(q.falseProperties || []),
+      `${hasBound ? "unbounded" : "bounded"} ${side}`,
+    ];
+  }
+  q.properties.push(upperBounded && lowerBounded ? "bounded" : "unbounded");
+  q.falseProperties!.push(
+    upperBounded && lowerBounded ? "unbounded" : "bounded",
+  );
+  q.properties = [...new Set(q.properties)];
+  q.falseProperties = [...new Set(q.falseProperties)];
   if (!q.reference.length) q.reference = sampleFunction(fn, q.view, breaks);
   for (const key of ["xroots", "yroots", "turns", "open", "closed"] as const) {
     const list = q.features[key];

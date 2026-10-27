@@ -67,8 +67,29 @@ const aliases: Record<string, string[]> = {
   injective: ["injective", "one to one", "one-to-one"],
   periodic: ["periodic"],
   bounded: ["bounded"],
-  "bounded below": ["bounded below"],
-  "bounded above": ["bounded above"],
+  "bounded below": ["bounded below", "bounded from below", "has a lower bound"],
+  "bounded above": [
+    "bounded above",
+    "bounded from above",
+    "has an upper bound",
+  ],
+  unbounded: ["unbounded", "not bounded"],
+  "unbounded below": [
+    "unbounded below",
+    "unbounded from below",
+    "no lower bound",
+    "has no lower bound",
+    "not bounded below",
+    "not bounded from below",
+  ],
+  "unbounded above": [
+    "unbounded above",
+    "unbounded from above",
+    "no upper bound",
+    "has no upper bound",
+    "not bounded above",
+    "not bounded from above",
+  ],
   positive: ["positive", "strictly positive", "y > 0", "range: y > 0"],
   nonnegative: ["nonnegative", "non negative", "y >= 0", "range: y >= 0"],
   "inflection at zero": [
@@ -119,16 +140,37 @@ export function evaluateProperties(text: string, q: PlotQuestion) {
       claims.push({ text: raw, status: "unverified" });
       continue;
     }
-    if (seen.has(key)) {
+    // Negated bounds describe the same fact as their positive counterpart.
+    // Deduplicate equivalent claims, but still mark contradictory claims.
+    if (key.startsWith("unbounded")) {
+      key = key.replace("unbounded", "bounded");
+      negative = !negative;
+    }
+    const identity = `${key}:${negative ? "negative" : "positive"}`;
+    if (seen.has(identity)) {
       claims.push({ text: raw, status: "duplicate" });
       continue;
     }
-    seen.add(key);
+    seen.add(identity);
     let trueKnown =
       q.properties.includes(key) ||
       (key === "odd" && q.properties.includes("origin symmetry")) ||
       (key === "even" && q.properties.includes("y-axis symmetry"));
     let falseKnown = q.falseProperties?.includes(key) || false;
+    // Boundedness implies both directional bounds. Its negation alone does
+    // not establish which direction is unbounded.
+    if (key === "bounded above" || key === "bounded below") {
+      trueKnown ||= q.properties.includes("bounded");
+    }
+    if (key === "bounded") {
+      trueKnown ||=
+        q.properties.includes("bounded above") &&
+        q.properties.includes("bounded below");
+      falseKnown ||=
+        q.falseProperties?.includes("bounded above") ||
+        q.falseProperties?.includes("bounded below") ||
+        false;
+    }
     if (key === "period") {
       const p = q.properties.find((p) => p.startsWith("period:"));
       if (p) {
@@ -251,7 +293,7 @@ export function gradePlot(
           label: "Turning points",
           quality: matchPoints(markers("turn"), q.features.turns, q.view),
           max: 15,
-          message: `Local extrema: ${formatPoints(q.features.turns)}.`,
+          message: `${markers("turn").length ? "Purple star markers are matched to local extrema; misplaced or extra stars reduce this score." : "No purple star markers were placed. The curve and intercept markers are scored separately."} Place a purple star at each local extremum, including a corner or an extremum that is also an intercept. Local extrema: ${formatPoints(q.features.turns)}.`,
         });
       else curveMax += 15;
       if (q.features.asymptotes.length)
@@ -330,6 +372,11 @@ export function gradePlot(
             ? "Your overall shape is close. Refine the curve near the highlighted features."
             : "Your curve follows the reference closely.",
         q.explanation,
+        ...(!q.curveOnly && q.features.turns.length && !markers("turn").length
+          ? [
+              `No purple star markers were placed, so turning-point marks were not awarded. Mark ${formatPoints(q.features.turns)} with the Turning point tool, even if an intercept marker is already there.`,
+            ]
+          : []),
       ],
       props.claims,
     );

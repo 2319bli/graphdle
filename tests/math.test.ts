@@ -265,6 +265,110 @@ describe("interpretable grading", () => {
     ]);
     expect(p.quality).toBe(0.5);
   });
+  it("awards the screenshot's even and unbounded-above claims full property credit", () => {
+    const q = {
+      ...functionQuestion("screenshot", "Medium", "modulus"),
+      title: "y = 3|x| − 1",
+      reference: sampleFunction((x) => 3 * Math.abs(x) - 1, DEFAULT_VIEW),
+      features: {
+        xroots: [point(-1 / 3, 0), point(1 / 3, 0)],
+        yroots: [point(0, -1)],
+        turns: [point(0, -1)],
+        asymptotes: [],
+      },
+      properties: ["continuous", "bounded below", "even"],
+    };
+    const properties = "even function; unbounded above";
+    expect(
+      evaluateProperties(properties, q).claims.map((c) => c.status),
+    ).toEqual(["correct", "correct"]);
+    const withoutStar = perfect(q).filter((item) => item.kind !== "turn");
+    const grade = gradePlot(q, withoutStar, properties);
+    expect(grade.breakdown.find((b) => b.label === "Properties")?.score).toBe(
+      15,
+    );
+    expect(
+      grade.breakdown.find((b) => b.label === "Turning points")?.score,
+    ).toBe(0);
+    expect(
+      grade.breakdown.find((b) => b.label === "Turning points")?.message,
+    ).toContain("No purple star markers were placed");
+    expect(grade.feedback.some((f) => f.includes("Turning point tool"))).toBe(
+      true,
+    );
+    expect(gradePlot(q, perfect(q), properties).score).toBe(100);
+  });
+  it("accepts equivalent descriptions of unboundedness once", () => {
+    const q = functionQuestion("bounds", "Medium", "modulus");
+    const result = evaluateProperties(
+      "unbounded above; not bounded above; has no upper bound; unbounded from above; not bounded from above",
+      q,
+    );
+    expect(result.claims.map((c) => c.status)).toEqual([
+      "correct",
+      "duplicate",
+      "duplicate",
+      "duplicate",
+      "duplicate",
+    ]);
+    expect(result.quality).toBe(0.5);
+  });
+  it("does not hide a contradictory property as a duplicate", () => {
+    const q = functionQuestion("bounds", "Medium", "modulus");
+    const result = evaluateProperties("unbounded above; bounded above", q);
+    expect(result.claims.map((c) => c.status)).toEqual([
+      "correct",
+      "incorrect",
+    ]);
+    expect(result.quality).toBe(0);
+    expect(
+      evaluateProperties("bounded above; unbounded above", q).quality,
+    ).toBe(0);
+  });
+  it("checks upper and lower bounds over the full domain", () => {
+    const parabola = functionQuestion("bounds", "Easy", "quadratic");
+    expect(
+      evaluateProperties(
+        "unbounded above; unbounded below",
+        parabola,
+      ).claims.map((c) => c.status),
+    ).toEqual(["correct", "incorrect"]);
+    const cubic = functionQuestion("bounds", "Easy", "cubic");
+    expect(
+      evaluateProperties("no upper bound; has no lower bound", cubic).quality,
+    ).toBe(1);
+    const logarithmic = functionQuestion("bounds", "Hard", "logratio");
+    expect(
+      evaluateProperties("bounded above; unbounded below", logarithmic).quality,
+    ).toBe(1);
+    const ellipse = functionQuestion("bounds", "Hard", "ellipse");
+    expect(
+      evaluateProperties(
+        "unbounded above; unbounded below",
+        ellipse,
+      ).claims.every((c) => c.status === "incorrect"),
+    ).toBe(true);
+  });
+  it("does not infer the direction of unboundedness without evidence", () => {
+    const q = {
+      ...functionQuestion("bounds", "Easy", "linear"),
+      properties: [],
+      falseProperties: ["bounded"],
+    };
+    expect(evaluateProperties("unbounded", q).claims[0].status).toBe("correct");
+    expect(
+      evaluateProperties("unbounded above; unbounded below", q).claims.every(
+        (c) => c.status === "unverified",
+      ),
+    ).toBe(true);
+    const bounded = { ...q, properties: ["bounded"], falseProperties: [] };
+    expect(
+      evaluateProperties(
+        "has an upper bound; has a lower bound",
+        bounded,
+      ).claims.every((c) => c.status === "correct"),
+    ).toBe(true);
+  });
   it("does not claim rational functions are differentiable everywhere", () => {
     const q = functionQuestion("test", "Medium", "rational");
     expect(

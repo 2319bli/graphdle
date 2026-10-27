@@ -846,6 +846,14 @@ export default function App() {
               </span>
               <h2>{q.title}</h2>
               <p>{q.detail}</p>
+              {q.mode === "function" && !q.curveOnly && !q.practiceOnly && (
+                <p className="feature-instructions">
+                  Feature marks are separate from the curve: use triangles for
+                  x-intercepts, circles for y-intercepts, and purple stars for
+                  local extrema (including corners). When features coincide,
+                  place each marker at the same point.
+                </p>
+              )}
               {q.mode === "network" && <NetworkPrompt question={q} />}
             </section>
             <div className={`play-layout ${submitted ? "has-feedback" : ""}`}>
