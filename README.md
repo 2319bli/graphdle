@@ -1,6 +1,6 @@
 # Graphdle
 
-**Find your line.** Three independent mathematical drawing games, built with React, TypeScript, Vite and SVG. No account, backend, paid service or external scoring API is needed.
+Three independent mathematical drawing games, built with React, TypeScript, Vite and SVG. No account, backend, paid service or external scoring API is needed.
 
 **Play:** https://2319bli.github.io/graphdle/
 

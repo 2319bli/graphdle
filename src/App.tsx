@@ -6,12 +6,10 @@ import {
   Moon,
   Sun,
   ChartNoAxesCombined,
-  Check,
   ChevronRight,
   X,
   RotateCcw,
   Trophy,
-  BookOpen,
   Settings2,
   GitBranch,
   Workflow,
@@ -43,18 +41,11 @@ const names: Record<Mode, string> = {
   network: "Graph Theory",
   complex: "Complex Graphing",
 };
-const taglines: Record<Mode, string> = {
-  function: "Turn an equation into intuition.",
-  network: "Make the right connections.",
-  complex: "Find your way around the complex plane.",
-};
 const descriptions: Record<Mode, string> = {
-  function:
-    "Sketch curves, spot turning points, and get a feel for how functions behave.",
+  function: "Sketch curves and mark intercepts, turning points and asymptotes.",
   network:
     "Build networks from matrices, degree sequences, and mathematical constraints.",
-  complex:
-    "Explore loci, boundaries, and regions on an interactive Argand diagram.",
+  complex: "Draw loci and shade regions on an Argand diagram.",
 };
 const modeIcons = {
   function: <ChartNoAxesCombined />,
@@ -64,26 +55,12 @@ const modeIcons = {
 const difficulties: Difficulty[] = ["Easy", "Medium", "Hard", "Expert"];
 const modes: Mode[] = ["function", "network", "complex"];
 const emptyNetwork: Network = { vertices: [], edges: [] };
-const performance = (score: number) =>
-  score >= 450
-    ? "Exceptional"
-    : score >= 375
-      ? "Strong intuition"
-      : score >= 300
-        ? "Taking shape"
-        : score >= 200
-          ? "Finding your line"
-          : "Keep exploring";
-function Illustration({ mode, hero = false }: { mode: Mode; hero?: boolean }) {
+function Illustration({ mode }: { mode: Mode }) {
   return (
-    <svg
-      viewBox="0 0 340 175"
-      className={hero ? "hero-illustration" : "card-illustration"}
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 340 175" className="card-illustration" aria-hidden="true">
       <defs>
         <pattern
-          id={`mini-${mode}-${hero}`}
+          id={`mini-${mode}`}
           width="23"
           height="23"
           patternUnits="userSpaceOnUse"
@@ -96,7 +73,7 @@ function Illustration({ mode, hero = false }: { mode: Mode; hero?: boolean }) {
           />
         </pattern>
       </defs>
-      <rect width="340" height="175" fill={`url(#mini-${mode}-${hero})`} />
+      <rect width="340" height="175" fill={`url(#mini-${mode})`} />
       {mode === "function" ? (
         <>
           <path
@@ -362,12 +339,8 @@ function CustomDialog({
         >
           <X />
         </button>
-        <span className="eyebrow">YOUR OWN EXPLORATION</span>
         <h2 id="custom-title">Custom {names[mode].toLowerCase()}</h2>
-        <p>
-          One challenge, at your own pace. Custom scores stay separate from your
-          personal best.
-        </p>
+        <p>Custom scores do not affect your personal best.</p>
         {mode === "network" && (
           <label>
             Input format
@@ -651,54 +624,10 @@ export default function App() {
       <main>
         {page === "home" && (
           <>
-            <section className="hero">
-              <div className="hero-copy">
-                <div className="hero-label">
-                  <span className="status-dot" /> A LITTLE INTUITION. A LOT OF
-                  MATHEMATICS.
-                </div>
-                <h1>
-                  Find your <em>line.</em>
-                </h1>
-                <p>
-                  Some things make more sense when you draw them.
-                  <br className="desktop-break" /> Three games to sharpen your
-                  mathematical intuition.
-                </p>
-                <div className="hero-meta">
-                  <span>
-                    <Check size={15} /> Five questions
-                  </span>
-                  <span>
-                    <Check size={15} /> 500 points
-                  </span>
-                  <span>
-                    <Check size={15} /> No rush
-                  </span>
-                </div>
-              </div>
-              <div className="hero-art">
-                <div className="formula top-formula">
-                  a little sketch goes a long way
-                </div>
-                <Illustration mode="function" hero />
-                <span className="hand-note">
-                  think it. draw it. understand it.
-                </span>
-                <div className="art-badge">
-                  <span>∞</span> room to explore
-                </div>
-              </div>
-            </section>
-            <section className="games-section">
-              <div className="section-heading">
-                <div>
-                  <span className="eyebrow">THREE WAYS TO THINK</span>
-                  <h2>Choose your plane of thought.</h2>
-                </div>
-                <span className="section-note">
-                  Independent games. Endless possibilities.
-                </span>
+            <section className="games-section" aria-labelledby="games-title">
+              <div className="games-heading">
+                <h1 id="games-title">Choose a game</h1>
+                <p>Five questions · 500 points</p>
               </div>
               <div className="game-cards">
                 {modes.map((m, i) => {
@@ -717,7 +646,7 @@ export default function App() {
                         <span className="card-icon">{modeIcons[m]}</span>
                       </div>
                       <Illustration mode={m} />
-                      <h3>{names[m]}</h3>
+                      <h2>{names[m]}</h2>
                       <p>{descriptions[m]}</p>
                       <div className="card-difficulty">
                         <label htmlFor={`difficulty-${m}`}>Difficulty</label>
@@ -740,7 +669,7 @@ export default function App() {
                         className="button card-play"
                         onClick={() => start(m)}
                       >
-                        Let's play <ArrowUpRight size={18} />
+                        Play <ArrowUpRight size={18} />
                       </button>
                       <div className="card-bottom">
                         <button onClick={() => setCustom(m)}>
@@ -769,49 +698,6 @@ export default function App() {
                 })}
               </div>
             </section>
-            <section className="how-section">
-              <div className="how-intro">
-                <BookOpen />
-                <h3>
-                  Less memorising.
-                  <br />
-                  More understanding.
-                </h3>
-                <p>
-                  From your first quadratic to an interview curveball. Build
-                  intuition one sketch at a time.
-                </p>
-              </div>
-              {[
-                {
-                  n: "01",
-                  title: "Meet your challenge",
-                  text: "Five fresh questions, generated for your game and difficulty.",
-                },
-                {
-                  n: "02",
-                  title: "Make your mark",
-                  text: "Draw, connect, or shade. Take your time and trust the mathematics.",
-                },
-                {
-                  n: "03",
-                  title: "See the bigger picture",
-                  text: "Compare your answer, learn from the feedback, and watch your progress.",
-                },
-              ].map((s) => (
-                <div className="how-step" key={s.n}>
-                  <span>{s.n}</span>
-                  <h4>{s.title}</h4>
-                  <p>{s.text}</p>
-                </div>
-              ))}
-            </section>
-            <div className="privacy-strip">
-              <span>
-                Made for curious minds, from A-level to interview prep.
-              </span>
-              <span>No account. No timer. Just you and the graph.</span>
-            </div>
           </>
         )}
         {page === "play" && q && (
@@ -822,12 +708,11 @@ export default function App() {
             <div className="play-heading">
               <div>
                 <span className="eyebrow">
-                  {names[mode]}{" "}
                   <span className="pill">
                     {isCustom ? "Custom" : difficulty[mode]}
                   </span>
                 </span>
-                <h1>{taglines[mode]}</h1>
+                <h1>{names[mode]}</h1>
               </div>
               <div className="score-pill">
                 <span>YOUR SCORE</span>
@@ -956,17 +841,8 @@ export default function App() {
                 ? "CUSTOM CHALLENGE COMPLETE"
                 : `${names[mode]} · ${difficulty[mode]}`}
             </span>
-            <div className="result-emblem">
-              <Trophy size={30} />
-            </div>
-            <h1>
-              {isCustom ? "A little more intuition." : performance(total) + "."}
-            </h1>
-            <p>
-              {isCustom
-                ? "Your custom result does not affect your personal best."
-                : "Five questions. A fresh perspective. Here’s how you did."}
-            </p>
+            <h1>Results</h1>
+            {isCustom && <p>Custom scores do not affect your personal best.</p>}
             <div className="result-score">
               {unmarked ? "Unmarked" : total}
               {!unmarked && <span> / {questions.length * 100}</span>}
@@ -1032,10 +908,7 @@ export default function App() {
                   specific feedback.
                 </p>
               ) : (
-                <p>
-                  Your answers showed strong understanding. Try the next
-                  difficulty or a custom challenge to stretch your intuition.
-                </p>
+                <p>Try a higher difficulty or a custom challenge.</p>
               )}
             </div>
             <div className="result-actions">
@@ -1094,8 +967,7 @@ export default function App() {
         )}
         {page === "stats" && (
           <section className="stats-page">
-            <span className="eyebrow">YOUR MATHEMATICAL JOURNEY</span>
-            <h1>Progress, one graph at a time.</h1>
+            <h1>Your progress</h1>
             <div className="mode-tabs" role="tablist">
               {modes.map((m) => (
                 <button
@@ -1224,7 +1096,7 @@ export default function App() {
             ) : (
               <div className="empty-state">
                 <ChartNoAxesCombined size={36} />
-                <h2>Every graph is a starting point.</h2>
+                <h2>No games yet</h2>
                 <p>Finish a five-question game to see your progress here.</p>
                 <button className="button" onClick={() => start(mode)}>
                   Play {names[mode]} <ArrowRight size={17} />
@@ -1248,7 +1120,6 @@ export default function App() {
       </main>
       <footer className="site-footer">
         <span className="footer-logo">graphdle.</span>
-        <span>Mathematics, by hand.</span>
         <div>
           <button onClick={() => setAbout(true)}>How marking works</button>
           <a
@@ -1327,8 +1198,7 @@ export default function App() {
             >
               <X />
             </button>
-            <span className="eyebrow">CLEAR, EXPLAINABLE MARKING</span>
-            <h2 id="about-title">The mathematics behind the marks.</h2>
+            <h2 id="about-title">How marking works</h2>
             <p>
               <b>Functions:</b> 40 points for the curve, 15 each for intercepts,
               turning points, asymptotes, and properties. Corners and cusps are
