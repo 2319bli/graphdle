@@ -313,6 +313,11 @@ describe("interpretable grading", () => {
   });
 });
 describe("graph theory", () => {
+  it("does not award vacuous constraint marks to an empty construction", () => {
+    for (const level of levels)
+      for (const q of networkGame("empty", level))
+        expect(gradeNetwork(q, { vertices: [], edges: [] }).score).toBe(0);
+  });
   it("checks connectivity and bipartiteness", () => {
     expect(
       components(

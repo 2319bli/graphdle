@@ -444,6 +444,18 @@ export function formatPoints(ps: Point[]) {
     : "none";
 }
 export function gradeNetwork(q: NetworkQuestion, g: Network): Grade {
+  if (!g.vertices.length)
+    return finalGrade(
+      [
+        {
+          label: "Construction",
+          score: 0,
+          max: 100,
+          message: "Add the required vertices and edges before submitting.",
+        },
+      ],
+      ["No graph was constructed."],
+    );
   const breakdown: Breakdown[] = [];
   const add = (label: string, quality: number, max: number, message: string) =>
     breakdown.push({
