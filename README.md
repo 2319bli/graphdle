@@ -55,6 +55,7 @@ Tools include freehand loci, full lines, rays, circles, points, solid/dashed bou
 - **The original question window is always the assessment window.** Changing the view never reduces the part of the answer being assessed. Its dashed frame remains visible when zoomed out. Features outside it are not required.
 - Missing branches and incorrect added strokes reduce the geometric score. This is an interpretable numerical approximation, not a formal topological equivalence test. Tiny connections near a singularity may be under-penalised; curve quality and topology can always be inspected in the overlay.
 - Region grading uses intersection-over-union on a deterministic 80×80 mathematical grid. Boundary inclusion, excluded points, and shape are scored separately. Very small geometric differences may fall below sampling resolution.
+- **Additional Properties is a searchable tag picker.** Search a property name or synonym, select it, and remove it with its × button if needed. Arrow keys and Enter select suggestions; Escape closes the list. Only selected tags are submitted. The catalogue is identical for every question and does not reveal which properties are correct. Period tags explicitly name the **fundamental** period.
 - The property evaluator recognises a deliberately bounded vocabulary: symmetry, odd/even, continuity, differentiability, monotonicity, injectivity, periodicity/period, boundedness, positivity/nonnegativity, and inflection at zero. Common synonyms are accepted, including “unbounded above” / “not bounded above” / “has no upper bound” and the corresponding lower-bound phrases; equivalent claims do not count twice; contradictory claims are still checked; known false claims cancel correct claims; unrecognised claims are explicitly **unverified**. It is not a natural-language theorem prover. For example, arbitrary interval-specific monotonicity or general range claims may remain unverified.
 - “Continuous” and “differentiable” refer to the stated domain. “Everywhere” is interpreted as all real x. Local extrema include corners such as a modulus vertex, but exclude stationary inflections.
 - Expert oscillatory templates intentionally exclude the unresolved neighbourhood of zero. Arbitrarily oscillatory, fractal, or arbitrary implicit equations are not claimed to be reliably auto-graded.
@@ -80,6 +81,8 @@ Completed standard games store dates, mode, difficulty, totals and per-question 
 - `src/math/complex.ts` — complex locus generators and supported custom parsing
 - `src/math/geometry.ts` — sampling, coordinate transforms and geometric comparison
 - `src/math/grading.ts` — deterministic rubric, feature matching and property rules
+- `src/math/propertyTags.ts` — shared property vocabulary, tag search and canonical claims
+- `src/components/PropertyPicker.tsx` — accessible searchable property tags
 - `src/math/turningPoints.ts` — automatic recognition of sharp extrema with freehand tolerance
 - `src/components/Plane.tsx` — mathematical drawing canvas and view controls
 - `src/components/NetworkCanvas.tsx` — graph editor and prompt renderers

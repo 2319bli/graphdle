@@ -868,27 +868,6 @@ main {
   padding: 7px 9px;
   font-size: 12px;
 }
-.properties-label {
-  margin-top: 23px;
-  font-size: 13px;
-}
-.properties-label > span {
-  font-weight: 400;
-  color: var(--muted);
-  font-size: 10px;
-  margin-left: 8px;
-}
-.properties-label textarea {
-  font-size: 12px;
-}
-.properties-label small {
-  font-weight: 400;
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.6;
-  display: block;
-  margin-top: 7px;
-}
 .submit-row {
   display: flex;
   justify-content: space-between;
@@ -1680,7 +1659,7 @@ main {
   .challenge h2 {
     font-size: 22px;
   }
-  .properties-label > span {
+  .property-picker-heading > span {
     display: block;
     margin: 6px 0 0;
   }
@@ -2040,4 +2019,172 @@ main {
   padding-top: 12px;
   border-top: 1px solid var(--border);
   color: var(--text);
+}
+
+.property-picker {
+  margin-top: 23px;
+}
+.property-picker-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin-bottom: 10px;
+}
+.property-picker-heading label {
+  font-size: 13px;
+}
+.property-picker-heading > span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.selected-properties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+.property-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 7px 9px;
+  border-radius: 7px;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.property-chip > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.property-chip button {
+  padding: 2px;
+  display: flex;
+  background: transparent;
+  border-radius: 4px;
+}
+.property-chip button:hover {
+  background: var(--border);
+}
+.property-search {
+  position: relative;
+}
+.property-search-input {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+}
+.property-search-input > svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.property-search-input:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+.property-search-input input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  outline: none;
+}
+.property-search-input button {
+  display: flex;
+  padding: 5px;
+  background: transparent;
+  border-radius: 4px;
+  color: var(--muted);
+}
+.property-suggestions-panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: 0 10px 30px #12261d20;
+  overflow: hidden;
+}
+.property-search-caption {
+  padding: 10px 13px;
+  font-size: 9px;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.property-suggestions-panel ul {
+  max-height: 245px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+}
+.property-suggestions-panel li {
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.property-suggestions-panel li[aria-selected="true"] {
+  background: var(--accent-soft);
+}
+.property-suggestions-panel li > span {
+  display: block;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--text);
+}
+.property-suggestions-panel li > small {
+  display: block;
+  font-size: 10px;
+  margin-top: 4px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.property-picker-help,
+.no-selected-properties,
+.property-no-match {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.property-no-match {
+  padding: 4px 14px 15px;
+  margin: 0;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 500px) {
+  .property-picker-heading {
+    display: block;
+  }
+  .property-picker-heading > span {
+    display: block;
+    margin-top: 5px;
+  }
+  .property-chip {
+    font-size: 10px;
+  }
 }

@@ -25,6 +25,7 @@ import {
   isSimple,
 } from "./networks";
 import { cornerSketchQuality, isSketchTurningPoint } from "./turningPoints";
+import { parsePropertyClaim } from "./propertyTags";
 
 export const TOLERANCE = { curve: 0.025, marker: 0.045 };
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
@@ -128,62 +129,6 @@ function assessTurningPoints(
     feedback,
   };
 }
-const aliases: Record<string, string[]> = {
-  even: [
-    "even",
-    "even function",
-    "symmetric about the y axis",
-    "symmetric about y axis",
-  ],
-  odd: ["odd", "odd function", "symmetric about the origin", "origin symmetry"],
-  continuous: [
-    "continuous",
-    "continuous on its domain",
-    "continuous everywhere",
-  ],
-  differentiable: [
-    "differentiable",
-    "differentiable on its domain",
-    "differentiable everywhere",
-  ],
-  increasing: ["increasing", "strictly increasing", "monotonically increasing"],
-  decreasing: ["decreasing", "strictly decreasing", "monotonically decreasing"],
-  injective: ["injective", "one to one", "one-to-one"],
-  periodic: ["periodic"],
-  bounded: ["bounded"],
-  "bounded below": ["bounded below", "bounded from below", "has a lower bound"],
-  "bounded above": [
-    "bounded above",
-    "bounded from above",
-    "has an upper bound",
-  ],
-  unbounded: ["unbounded", "not bounded"],
-  "unbounded below": [
-    "unbounded below",
-    "unbounded from below",
-    "no lower bound",
-    "has no lower bound",
-    "not bounded below",
-    "not bounded from below",
-  ],
-  "unbounded above": [
-    "unbounded above",
-    "unbounded from above",
-    "no upper bound",
-    "has no upper bound",
-    "not bounded above",
-    "not bounded from above",
-  ],
-  positive: ["positive", "strictly positive", "y > 0", "range: y > 0"],
-  nonnegative: ["nonnegative", "non negative", "y >= 0", "range: y >= 0"],
-  "inflection at zero": [
-    "inflection at zero",
-    "inflection point at x = 0",
-    "inflection at x = 0",
-  ],
-  "x-axis symmetry": ["symmetric about the x axis"],
-  "y-axis symmetry": ["y axis symmetry"],
-};
 export function evaluateProperties(text: string, q: PlotQuestion) {
   const seen = new Set<string>();
   const claims: NonNullable<Grade["claims"]> = [];
@@ -193,44 +138,12 @@ export function evaluateProperties(text: string, q: PlotQuestion) {
     .split(/[;\n]+/)
     .map((s) => s.trim())
     .filter(Boolean)) {
-    let s = raw
-      .toLowerCase()
-      .replace(/[.]+$/, "")
-      .replace(/π/g, "pi")
-      .replace(/≥/g, ">=")
-      .replace(/−/g, "-")
-      .replace(/y-axis/g, "y axis")
-      .replace(/x-axis/g, "x axis")
-      .replace(/\s+/g, " ");
-    let negative = false;
-    if (s.startsWith("not ")) {
-      negative = true;
-      s = s.slice(4);
-    }
-    let key = Object.entries(aliases).find(([, values]) =>
-      values.includes(s),
-    )?.[0];
-    const period = s.match(
-      /^(?:periodic with )?period\s*(?:=|:|of)?\s*(\d+(?:\.\d+)?)?\s*(pi)?\s*(?:\/\s*(\d+))?$/,
-    );
-    let periodValue: number | undefined;
-    if (period) {
-      periodValue =
-        (Number(period[1] || 1) * (period[2] ? Math.PI : 1)) /
-        Number(period[3] || 1);
-      key = "period";
-    }
-    if (!key) {
+    const parsed = parsePropertyClaim(raw);
+    if (!parsed) {
       claims.push({ text: raw, status: "unverified" });
       continue;
     }
-    // Negated bounds describe the same fact as their positive counterpart.
-    // Deduplicate equivalent claims, but still mark contradictory claims.
-    if (key.startsWith("unbounded")) {
-      key = key.replace("unbounded", "bounded");
-      negative = !negative;
-    }
-    const identity = `${key}:${negative ? "negative" : "positive"}`;
+    const { key, negative, periodValue, scope, identity } = parsed;
     if (seen.has(identity)) {
       claims.push({ text: raw, status: "duplicate" });
       continue;
@@ -263,7 +176,7 @@ export function evaluateProperties(text: string, q: PlotQuestion) {
       }
     }
     if (
-      s.endsWith("everywhere") &&
+      scope === "everywhere" &&
       [
         "reciprocal",
         "rational",

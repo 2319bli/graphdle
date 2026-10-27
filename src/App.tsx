@@ -33,6 +33,8 @@ import { networkGame, customNetwork } from "./math/networks";
 import { complexGame, customComplex } from "./math/complex";
 import { gradeNetwork, gradePlot } from "./math/grading";
 import { Plane } from "./components/Plane";
+import { PropertyPicker } from "./components/PropertyPicker";
+import { serializePropertyTags } from "./math/propertyTags";
 import { NetworkCanvas, NetworkPrompt } from "./components/NetworkCanvas";
 import { getTheme, readHistory, saveHistory } from "./storage";
 const names: Record<Mode, string> = {
@@ -477,7 +479,7 @@ export default function App() {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [drawing, setDrawing] = useState<Item[]>([]);
   const [network, setNetwork] = useState<Network>(emptyNetwork);
-  const [properties, setProperties] = useState("");
+  const [propertyTagIds, setPropertyTagIds] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState<Answer | null>(null);
   const [isCustom, setIsCustom] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
@@ -498,7 +500,7 @@ export default function App() {
   const resetAnswer = () => {
     setDrawing([]);
     setNetwork(emptyNetwork);
-    setProperties("");
+    setPropertyTagIds([]);
     setSubmitted(null);
   };
   const start = (m: Mode, customQ?: Question) => {
@@ -533,6 +535,7 @@ export default function App() {
     setGrading(true);
     window.setTimeout(() => {
       try {
+        const properties = serializePropertyTags(propertyTagIds);
         const grade =
           q.mode === "network"
             ? gradeNetwork(q, network)
@@ -874,22 +877,12 @@ export default function App() {
                   />
                 )}
                 {q.mode === "function" && !q.curveOnly && !q.practiceOnly && (
-                  <label className="properties-label">
-                    Additional properties{" "}
-                    <span>Two verified properties earn full credit.</span>
-                    <textarea
-                      disabled={!!submitted}
-                      value={properties}
-                      onChange={(e) => setProperties(e.target.value)}
-                      placeholder="e.g. even function; bounded below; continuous on its domain"
-                      rows={3}
-                    />
-                    <small>
-                      List properties, not a full solution. Separate with
-                      semicolons or new lines. Unrecognised claims are marked
-                      unverified.
-                    </small>
-                  </label>
+                  <PropertyPicker
+                    key={q.id}
+                    selected={propertyTagIds}
+                    onChange={setPropertyTagIds}
+                    disabled={!!submitted}
+                  />
                 )}
                 {!submitted && (
                   <div className="submit-row">
@@ -1340,8 +1333,10 @@ export default function App() {
               a formal proof. Custom functions receive curve-only checking;
               arbitrary implicit equations and highly oscillatory custom
               expressions are best explored in unmarked practice. Written
-              properties use a documented vocabulary; unrecognised claims remain
-              unverified.
+              property tags use a fixed searchable vocabulary. Suggestions are
+              the same for every question; mathematical correctness is checked
+              only after submission. Properties that cannot be established for
+              that question remain unverified.
             </p>
             <p>
               All three games are independent, generated locally and free of
