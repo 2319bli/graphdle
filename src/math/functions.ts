@@ -7,10 +7,48 @@ import {
 } from "../types";
 import { inside, parametric, point, sampleFunction } from "./geometry";
 import { integer, random, shuffle } from "./random";
-const families: Record<Difficulty, string[]> = {
-  Easy: ["linear", "quadratic", "cubic", "reciprocal", "exponential", "sine"],
-  Medium: ["rational", "logarithm", "modulus", "trig", "piecewise", "hole"],
-  Hard: ["logratio", "decay", "bounded", "drift", "ellipse", "parametric"],
+import { isTrigName } from "./trigFunctions";
+import { trigQuestion } from "./trigonometry";
+export const FUNCTION_FAMILIES: Record<Difficulty, string[]> = {
+  Easy: [
+    "linear",
+    "quadratic",
+    "cubic",
+    "reciprocal",
+    "exponential",
+    "sine",
+    "cos",
+  ],
+  Medium: [
+    "rational",
+    "logarithm",
+    "modulus",
+    "trig",
+    "piecewise",
+    "hole",
+    "tan",
+    "sinh",
+    "cosh",
+    "tanh",
+  ],
+  Hard: [
+    "logratio",
+    "decay",
+    "bounded",
+    "drift",
+    "ellipse",
+    "parametric",
+    "cot",
+    "sec",
+    "csc",
+    "asin",
+    "acos",
+    "atan",
+    "asinh",
+    "acosh",
+    "atanh",
+    "sech",
+  ],
   Expert: [
     "power",
     "singular",
@@ -18,6 +56,14 @@ const families: Record<Difficulty, string[]> = {
     "hyperbola",
     "stationary",
     "rationalpair",
+    "asec",
+    "acsc",
+    "acot",
+    "csch",
+    "coth",
+    "asech",
+    "acsch",
+    "acoth",
   ],
 };
 const term = (x: number) => (x < 0 ? `− ${-x}` : `+ ${x}`);
@@ -31,7 +77,9 @@ export function functionQuestion(
     h = integer(r, -2, 2),
     k = integer(r, -2, 2),
     b = integer(r, 1, 3);
-  const f = family || families[difficulty][integer(r, 0, 5)];
+  const pool = FUNCTION_FAMILIES[difficulty];
+  const f = family || pool[integer(r, 0, pool.length - 1)];
+  if (isTrigName(f)) return trigQuestion(seed, f, a, b);
   const q: PlotQuestion = {
     mode: "function",
     id: seed,
@@ -573,7 +621,7 @@ export function functionQuestion(
   return q;
 }
 export function functionGame(seed: string, difficulty: Difficulty) {
-  return shuffle(families[difficulty], random(seed))
+  return shuffle(FUNCTION_FAMILIES[difficulty], random(seed))
     .slice(0, 5)
     .map((f, i) => functionQuestion(`${seed}-${i}`, difficulty, f));
 }

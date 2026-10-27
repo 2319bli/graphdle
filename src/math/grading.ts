@@ -173,22 +173,23 @@ export function evaluateProperties(text: string, q: PlotQuestion) {
       if (p) {
         trueKnown = Math.abs(Number(p.split(":")[1]) - periodValue!) < 1e-5;
         falseKnown = !trueKnown;
-      }
+      } else if (q.falseProperties?.includes("periodic")) falseKnown = true;
     }
     if (
       scope === "everywhere" &&
-      [
-        "reciprocal",
-        "rational",
-        "logarithm",
-        "hole",
-        "logratio",
-        "power",
-        "singular",
-        "oscillation",
-        "hyperbola",
-        "rationalpair",
-      ].includes(q.family)
+      (q.allRealDomain === false ||
+        [
+          "reciprocal",
+          "rational",
+          "logarithm",
+          "hole",
+          "logratio",
+          "power",
+          "singular",
+          "oscillation",
+          "hyperbola",
+          "rationalpair",
+        ].includes(q.family))
     ) {
       trueKnown = false;
       falseKnown = true;

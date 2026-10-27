@@ -406,9 +406,26 @@ function CustomDialog({
         {mode === "function" && (
           <>
             <p className="field-help">
-              Use + − * / ^, sin, cos, tan, exp, log, sqrt, abs, asin, acos,
-              atan, sinh, cosh, pi and e. Example: log(x)/x.
+              Use + − * / ^, exp, log/ln, sqrt, abs, pi and e. All six trig
+              functions and their inverse and hyperbolic versions are supported.
+              Angles are in radians. Example: tanh(x) + asin(x/3).
             </p>
+            <details className="field-help">
+              <summary>Supported trig functions and inverse ranges</summary>
+              <p>Trig: sin, cos, tan, sec, csc (or cosec), cot.</p>
+              <p>Inverse trig: asin, acos, atan, asec, acsc, acot.</p>
+              <p>Hyperbolic: sinh, cosh, tanh, sech, csch (or cosech), coth.</p>
+              <p>
+                Inverse hyperbolic: asinh, acosh, atanh, asech, acsch, acoth.
+              </p>
+              <p>
+                Long names such as arcsin and arctanh also work. Inverse means
+                the principal inverse, not the reciprocal. The real convention
+                for acot is π/2 − atan(x), with range (0, π); asec uses
+                acos(1/x), and acsc uses asin(1/x). Only real-valued portions
+                are drawn.
+              </p>
+            </details>
             <label>
               Optional domain interval
               <input
@@ -878,7 +895,7 @@ export default function App() {
                 )}
                 {q.mode === "function" && !q.curveOnly && !q.practiceOnly && (
                   <PropertyPicker
-                    key={q.id}
+                    key={`properties-${q.id}`}
                     selected={propertyTagIds}
                     onChange={setPropertyTagIds}
                     disabled={!!submitted}

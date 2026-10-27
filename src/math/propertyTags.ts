@@ -284,6 +284,7 @@ export const PROPERTY_TAGS: PropertyTag[] = [
     ["period-pi", "π", "pi"],
     ["period-2pi-3", "2π/3", "2pi/3"],
     ["period-pi-2", "π/2", "pi/2"],
+    ["period-pi-3", "π/3", "pi/3"],
     ["period-4pi", "4π", "4pi"],
   ].map(([id, label, value]) =>
     tag(

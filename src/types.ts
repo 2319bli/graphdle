@@ -54,6 +54,8 @@ export interface PlotQuestion {
   features: Features;
   properties: string[];
   falseProperties?: string[];
+  /** Whether domain-wide continuity also means continuity for every real x. */
+  allRealDomain?: boolean;
   region?: (p: Point) => boolean;
   excluded?: Point[];
   boundaryDashed?: boolean;

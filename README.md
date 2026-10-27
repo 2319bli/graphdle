@@ -31,7 +31,20 @@ Each standard game contains five seeded, parameterised questions from a single m
 
 ### Function Sketching
 
-24 templates covering lines, quadratics, cubics, reciprocals, exponentials, trigonometry, rational transformations, logarithms, modulus, piecewise curves, removable holes, logarithmic quotients, exponential decay, bounded rational functions, linear/trigonometric sums, implicit ellipses, parametric ellipses, x^x, oblique asymptotes, restricted oscillatory functions, rotated implicit hyperbolas, stationary inflections, and rational curves with three branches.
+47 templates covering lines, quadratics, cubics, reciprocals, exponentials, rational transformations, logarithms, modulus, piecewise curves, removable holes, logarithmic quotients, exponential decay, bounded rational functions, linear/trigonometric sums, implicit and parametric ellipses, x^x, oblique asymptotes, restricted oscillatory functions, rotated hyperbolas, stationary inflections, and rational curves with three branches, plus the complete 24-function trig family:
+
+| Family                | Functions                                   |
+| --------------------- | ------------------------------------------- |
+| Trigonometric         | sin, cos, tan, sec, csc (cosec), cot        |
+| Inverse trigonometric | asin, acos, atan, asec, acsc, acot          |
+| Hyperbolic            | sinh, cosh, tanh, sech, csch (cosech), coth |
+| Inverse hyperbolic    | asinh, acosh, atanh, asech, acsch, acoth    |
+
+Easy adds cosine to the original introductory pool. Medium includes tangent, sinh, cosh and tanh. Hard adds cot/sec/csc, asin/acos/atan, asinh/acosh/atanh and sech. Expert includes asec/acsc/acot, csch/coth and asech/acsch/acoth. Each difficulty keeps its own pool and draws five distinct families per game.
+
+Generated trig questions vary amplitude and horizontal scale. Circular angles use radians; inverse questions state their real domain and principal output range after scaling. **Graphdle uses acot(x) = π/2 − atan(x), with range (0, π), in both generated and custom questions.** This deliberately differs from math.js's built-in `atan(1/x)` convention. Asec uses acos(1/x) and acsc uses asin(1/x). Real inverse-hyperbolic domains are enforced. Finite endpoints are closed points, not turning points; vertical-tangent endpoints are not marked differentiable. Reference curves are sampled separately on each domain interval so they never join across a pole or excluded interval. Properties concern the entire stated domain, not a single monotone branch.
+
+Reference definitions: [NIST inverse trig](https://dlmf.nist.gov/4.23), [NIST inverse hyperbolic functions](https://dlmf.nist.gov/4.37), and [math.js's alternative acot convention](https://mathjs.org/docs/reference/functions/acot.html).
 
 The tools include freehand curves, straight dotted asymptotes, intercept and turning-point markers, open/closed endpoints, selection/movement, eraser, undo, redo, and clear. Coordinates are mathematical: independent axis scaling, ranges, panning and zooming do not alter the answer. Use B for brush, E for eraser, H for pan, Ctrl/Command Z for undo, and Shift Ctrl/Command Z for redo.
 
@@ -64,7 +77,7 @@ Tools include freehand loci, full lines, rays, circles, points, solid/dashed bou
 
 ## Custom challenges
 
-- **Functions:** a restricted, validated math.js expression in x, optional finite domain interval, and independent viewing ranges. Supported operators are `+ - * / ^`; functions include `sin`, `cos`, `tan`, `exp`, `log`/`ln`, `sqrt`, `abs`, inverse trig and hyperbolic sine/cosine. Supported expressions receive numerical **curve-only** checking. Arbitrary symbolic feature detection is not attempted. Numerical sampling may miss very narrow singularities or oscillations.
+- **Functions:** a restricted, validated math.js expression in x, optional finite domain interval, and independent viewing ranges. Supported operators are `+ - * / ^`; functions include all 24 trig functions listed above, `exp`, `log`/`ln`, `sqrt`, and `abs`. Long inverse names such as `arcsin` and `arctanh`, and `cosec`/`cosech`, are also accepted. Examples: `sech(x)`, `arctanh(x/3)`, `acot(x)`, and `tanh(x) + asin(x/3)`. Only real-valued portions are plotted. Supported expressions receive numerical **curve-only** checking. Arbitrary symbolic feature detection is not attempted. Numerical sampling may miss very narrow singularities or oscillations.
 - **Networks:** symmetric zero-diagonal 0–1 adjacency matrix, edge list (e.g. `A-B, B-C, D` for isolated D), or a graphical degree sequence. Havel–Hakimi validates and realises degree sequences.
 - **Complex:** text parsing supports circles/disks such as `|z-(2+1i)| = 3`, `|z| <= 2`, and real/imaginary coordinate equalities/inequalities such as `Re(z) > 1` or `Im(z) = -2`.
 - **Unmarked practice** accepts unsupported function/complex prompts without inventing an answer or automatic marks. Custom sessions never affect standard history or personal bests.
@@ -76,6 +89,8 @@ Completed standard games store dates, mode, difficulty, totals and per-question 
 ## Architecture
 
 - `src/math/functions.ts` — analytic function generators
+- `src/math/trigonometry.ts` — full trig-family generators, domains, endpoints and analytic grading features
+- `src/math/trigFunctions.ts` — shared real-valued trig definitions and custom-expression aliases
 - `src/math/customFunction.ts` — lazy-loaded, restricted math.js custom parser
 - `src/math/networks.ts` — graph generators, invariants and custom graph validation
 - `src/math/complex.ts` — complex locus generators and supported custom parsing

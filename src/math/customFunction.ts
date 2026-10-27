@@ -1,6 +1,7 @@
 import { parse } from "mathjs";
 import { emptyFeatures, type PlotQuestion, type View } from "../types";
 import { inside, sampleFunction } from "./geometry";
+import { REAL_TRIG_SCOPE } from "./trigFunctions";
 export function customFunction(
   expression: string,
   view: View,
@@ -12,19 +13,12 @@ export function customFunction(
   const node = parse(clean);
   let count = 0;
   const allowed = [
-    "sin",
-    "cos",
-    "tan",
+    ...Object.keys(REAL_TRIG_SCOPE),
     "exp",
     "log",
     "ln",
     "sqrt",
     "abs",
-    "asin",
-    "acos",
-    "atan",
-    "sinh",
-    "cosh",
   ];
   node.traverse((n) => {
     count++;
@@ -56,7 +50,7 @@ export function customFunction(
   const fn = (x: number) => {
     if (domain && (x < domain[0] || x > domain[1])) return NaN;
     try {
-      const y = compiled.evaluate({ x, ln: Math.log });
+      const y = compiled.evaluate({ x, ln: Math.log, ...REAL_TRIG_SCOPE });
       return typeof y === "number" && Number.isFinite(y) ? y : NaN;
     } catch {
       return NaN;
