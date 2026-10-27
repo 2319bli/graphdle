@@ -6,6 +6,7 @@ import {
 } from "../types";
 import { inside, point, sampleFunction } from "./geometry";
 import { REAL_TRIG, type TrigName } from "./trigFunctions";
+import { relationLatex, tex, trigOperator } from "./latex";
 
 /** Analytic features of y = a f(bx), or y = a f(x/b) for inverse functions. */
 export function trigQuestion(
@@ -24,6 +25,7 @@ export function trigQuestion(
     id,
     family: name,
     title: `y = ${a === 1 ? "" : a}${label}(${arg})`,
+    latex: tex`y = ${a === 1 ? "" : a}${trigOperator(name)}\left(${b === 1 ? "x" : inverse ? tex`\frac{x}{${b}}` : `${b}x`}\right)`,
     detail: "",
     view: { xmin: -4, xmax: 4, ymin: -4, ymax: 4 },
     reference: [],
@@ -355,6 +357,18 @@ export function trigQuestion(
   q.detail =
     `${["sin", "cos", "tan", "sec", "csc", "cot", "asin", "acos", "atan", "asec", "acsc", "acot"].includes(name) ? "Angles in radians. " : ""}Domain: ${domain}.${range ? ` Principal range: ${range}.` : ""} ${q.features.closed?.length ? "Mark the included endpoints with closed points." : ""}`.trim();
   q.explanation = `${note.trim() || "Use the stated domain and principal branch when sketching this inverse function."}${period ? ` The fundamental period is ${pi(name === "tan" || name === "cot" ? 1 : 2, b)}.` : ""} Properties refer to the full stated domain.`;
+  q.detailParts = [
+    ...(q.detail.startsWith("Angles in radians.")
+      ? ["Angles in radians."]
+      : []),
+    { label: "Domain", latex: relationLatex(domain) },
+    ...(range
+      ? [{ label: "Principal range", latex: relationLatex(range) }]
+      : []),
+    ...(q.features.closed?.length
+      ? ["Mark the included endpoints with closed points."]
+      : []),
+  ];
   return q;
 }
 

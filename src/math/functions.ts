@@ -9,6 +9,7 @@ import { inside, parametric, point, sampleFunction } from "./geometry";
 import { integer, random, shuffle } from "./random";
 import { isTrigName } from "./trigFunctions";
 import { trigQuestion } from "./trigonometry";
+import { tex, signedTerm } from "./latex";
 export const FUNCTION_FAMILIES: Record<Difficulty, string[]> = {
   Easy: [
     "linear",
@@ -110,6 +111,7 @@ export function functionQuestion(
     case "linear":
       fn = (x) => a * x + k;
       q.title = `y = ${a}x ${term(k)}`;
+      q.latex = tex`y = ${a}x ${signedTerm(k)}`;
       xr(-k / a);
       yr(k);
       q.properties = [
@@ -123,6 +125,7 @@ export function functionQuestion(
     case "quadratic":
       fn = (x) => a * (x - h) ** 2 - b;
       q.title = `y = ${a}(x ${term(-h)})² − ${b}`;
+      q.latex = tex`y = ${a}\left(x ${signedTerm(-h)}\right)^2 - ${b}`;
       q.view = { xmin: -5, xmax: 5, ymin: -5, ymax: 12 };
       xr(h - Math.sqrt(b / a));
       xr(h + Math.sqrt(b / a));
@@ -141,6 +144,7 @@ export function functionQuestion(
     case "cubic":
       fn = (x) => (x ** 3 - 3 * a * x) / 3;
       q.title = `y = x³/3 − ${a}x`;
+      q.latex = tex`y = \frac{x^3}{3} - ${a}x`;
       q.view = { xmin: -4, xmax: 4, ymin: -8, ymax: 8 };
       [-Math.sqrt(3 * a), 0, Math.sqrt(3 * a)].forEach(xr);
       yr(0);
@@ -162,6 +166,7 @@ export function functionQuestion(
     case "reciprocal":
       fn = (x) => (x === 0 ? NaN : a / x);
       q.title = `y = ${a}/x`;
+      q.latex = tex`y = \frac{${a}}{x}`;
       breaks = [0];
       vertical(0);
       horizontal(0);
@@ -172,6 +177,7 @@ export function functionQuestion(
     case "exponential":
       fn = (x) => Math.exp(x / a);
       q.title = `y = e^(x/${a})`;
+      q.latex = tex`y = e^{\frac{x}{${a}}}`;
       yr(1);
       horizontal(0);
       q.properties = [
@@ -195,6 +201,7 @@ export function functionQuestion(
       const freq = f === "sine" ? 1 : b;
       fn = (x) => a * Math.sin(freq * x);
       q.title = `y = ${a}sin(${freq}x)`;
+      q.latex = tex`y = ${a}\sin\left(${freq}x\right)`;
       q.view = { xmin: -2 * Math.PI, xmax: 2 * Math.PI, ymin: -4, ymax: 4 };
       for (let j = -2 * freq; j <= 2 * freq; j++) xr((j * Math.PI) / freq);
       for (let j = -2 * freq; j < 2 * freq; j++) {
@@ -218,6 +225,7 @@ export function functionQuestion(
     case "rational":
       fn = (x) => (x === h ? NaN : k + a / (x - h));
       q.title = `y = ${k} + ${a}/(x ${term(-h)})`;
+      q.latex = tex`y = ${k} + \frac{${a}}{x ${signedTerm(-h)}}`;
       breaks = [h];
       vertical(h);
       horizontal(k);
@@ -230,6 +238,7 @@ export function functionQuestion(
     case "logarithm":
       fn = (x) => (x > h ? a * Math.log(x - h) : NaN);
       q.title = `y = ${a}ln(x ${term(-h)})`;
+      q.latex = tex`y = ${a}\ln\left(x ${signedTerm(-h)}\right)`;
       breaks = [h];
       vertical(h);
       xr(h + 1);
@@ -246,6 +255,7 @@ export function functionQuestion(
     case "modulus":
       fn = (x) => a * Math.abs(x - h) - b;
       q.title = `y = ${a}|x ${term(-h)}| − ${b}`;
+      q.latex = tex`y = ${a}\left|x ${signedTerm(-h)}\right| - ${b}`;
       xr(h - b / a);
       xr(h + b / a);
       yr(fn(0));
@@ -265,6 +275,7 @@ export function functionQuestion(
     case "piecewise":
       fn = (x) => (x < h ? -a * (x - h) + k : (x - h) ** 2 + k);
       q.title = `y = { −${a}(x ${term(-h)}) ${term(k)}, x < ${h}; (x ${term(-h)})² ${term(k)}, x ≥ ${h} }`;
+      q.latex = tex`y = \begin{cases}-${a}\left(x ${signedTerm(-h)}\right) ${signedTerm(k)} & x < ${h} \\ \left(x ${signedTerm(-h)}\right)^2 ${signedTerm(k)} & x \ge ${h}\end{cases}`;
       if (k <= 0) {
         xr(h + k / a);
         if (k < 0) xr(h + Math.sqrt(-k));
@@ -284,6 +295,7 @@ export function functionQuestion(
     case "hole":
       fn = (x) => (Math.abs(x - h) < 1e-9 ? NaN : x + h);
       q.title = `y = (x² − ${h * h})/(x ${term(-h)}), x ≠ ${h}`;
+      q.latex = tex`y = \frac{x^2 - ${h * h}}{x ${signedTerm(-h)}},\qquad x \ne ${h}`;
       breaks = [h];
       q.features.open = [point(h, 2 * h)];
       if (h !== 0) {
@@ -302,6 +314,7 @@ export function functionQuestion(
     case "logratio":
       fn = (x) => (x > 0 ? (a * Math.log(x)) / x : NaN);
       q.title = `y = ${a}ln(x)/x`;
+      q.latex = tex`y = \frac{${a}\ln x}{x}`;
       q.view = { xmin: -1, xmax: 10, ymin: -3, ymax: 2 };
       breaks = [0];
       xr(1);
@@ -321,6 +334,7 @@ export function functionQuestion(
     case "decay":
       fn = (x) => a * x * x * Math.exp(-x);
       q.title = `y = ${a}x²e^(−x)`;
+      q.latex = tex`y = ${a}x^2 e^{-x}`;
       q.view = { xmin: -2, xmax: 9, ymin: -1, ymax: 8 };
       xr(0);
       yr(0);
@@ -346,6 +360,7 @@ export function functionQuestion(
     case "bounded":
       fn = (x) => (x * x - a) / (x * x + a);
       q.title = `y = (x² − ${a})/(x² + ${a})`;
+      q.latex = tex`y = \frac{x^2 - ${a}}{x^2 + ${a}}`;
       q.view = { xmin: -7, xmax: 7, ymin: -2, ymax: 2 };
       xr(-Math.sqrt(a));
       xr(Math.sqrt(a));
@@ -367,6 +382,7 @@ export function functionQuestion(
     case "drift":
       fn = (x) => x + a * Math.sin(x);
       q.title = `y = x + ${a}sin(x)`;
+      q.latex = tex`y = x + ${a}\sin x`;
       q.view = { xmin: -7, xmax: 7, ymin: -8, ymax: 8 };
       xr(0);
       yr(0);
@@ -386,6 +402,7 @@ export function functionQuestion(
       break;
     case "ellipse": {
       q.title = `x² + xy + y² = ${a * a}`;
+      q.latex = tex`x^2 + xy + y^2 = ${a * a}`;
       q.view = { xmin: -5, xmax: 5, ymin: -5, ymax: 5 };
       q.reference = [
         parametric(
@@ -412,6 +429,7 @@ export function functionQuestion(
     }
     case "parametric":
       q.title = `x = ${a + 1}cos t, y = ${b}sin t, 0 ≤ t ≤ 2π`;
+      q.latex = tex`\begin{aligned}x &= ${a + 1}\cos t,\quad y = ${b}\sin t \\ &0 \le t \le 2\pi\end{aligned}`;
       q.reference = [
         parametric(
           (t) => point((a + 1) * Math.cos(t), b * Math.sin(t)),
@@ -437,6 +455,7 @@ export function functionQuestion(
     case "power":
       fn = (x) => (x > 0 ? Math.pow(x, x) * a : NaN);
       q.title = `y = ${a}x^x, x > 0`;
+      q.latex = tex`y = ${a}x^x,\qquad x > 0`;
       q.view = { xmin: -0.5, xmax: 3, ymin: 0, ymax: 10 };
       turn(1 / Math.E, a * Math.exp(-1 / Math.E));
       q.features.open = [point(0, a)];
@@ -457,6 +476,7 @@ export function functionQuestion(
     case "singular":
       fn = (x) => (x === 0 ? NaN : x + a / x);
       q.title = `y = x + ${a}/x, x ≠ 0`;
+      q.latex = tex`y = x + \frac{${a}}{x},\qquad x \ne 0`;
       q.view = { xmin: -7, xmax: 7, ymin: -9, ymax: 9 };
       breaks = [0];
       turn(Math.sqrt(a), 2 * Math.sqrt(a));
@@ -476,6 +496,7 @@ export function functionQuestion(
     case "oscillation": {
       fn = (x) => (x === 0 ? NaN : x * Math.sin(a / x));
       q.title = `y = x sin(${a}/x), |x| ≥ ${a / 4}`;
+      q.latex = tex`y = x\sin\left(\frac{${a}}{x}\right),\qquad |x| \ge \frac{${a}}{4}`;
       q.view = { xmin: -6, xmax: 6, ymin: -1, ymax: 4 };
       const base = fn;
       fn = (x) => (Math.abs(x) >= a / 4 ? base(x) : NaN);
@@ -502,6 +523,7 @@ export function functionQuestion(
     }
     case "hyperbola": {
       q.title = `x² + xy − y² = ${a * a}`;
+      q.latex = tex`x^2 + xy - y^2 = ${a * a}`;
       q.view = { xmin: -7, xmax: 7, ymin: -7, ymax: 7 };
       const theta = 0.5 * Math.atan(0.5),
         scale = a / Math.sqrt(Math.sqrt(5) / 2);
@@ -535,6 +557,7 @@ export function functionQuestion(
     case "stationary":
       fn = (x) => x ** 5 / 5 - (a * x ** 3) / 3;
       q.title = `y = x⁵/5 − ${a}x³/3`;
+      q.latex = tex`y = \frac{x^5}{5} - \frac{${a}x^3}{3}`;
       q.view = { xmin: -3, xmax: 3, ymin: -6, ymax: 6 };
       xr(0);
       xr(Math.sqrt((5 * a) / 3));
@@ -555,6 +578,7 @@ export function functionQuestion(
     case "rationalpair":
       fn = (x) => (Math.abs(x) === a ? NaN : x / (x * x - a * a));
       q.title = `y = x/(x² − ${a * a}), x ≠ ±${a}`;
+      q.latex = tex`y = \frac{x}{x^2 - ${a * a}},\qquad x \ne \pm ${a}`;
       q.view = { xmin: -7, xmax: 7, ymin: -4, ymax: 4 };
       breaks = [-a, a];
       xr(0);

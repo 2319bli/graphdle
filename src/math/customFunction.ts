@@ -1,7 +1,8 @@
-import { parse } from "mathjs";
+import { parse, type FunctionNode } from "mathjs";
 import { emptyFeatures, type PlotQuestion, type View } from "../types";
 import { inside, sampleFunction } from "./geometry";
 import { REAL_TRIG_SCOPE } from "./trigFunctions";
+import { tex, trigOperator } from "./latex";
 export function customFunction(
   expression: string,
   view: View,
@@ -66,6 +67,16 @@ export function customFunction(
     id: `custom-${Date.now()}`,
     family: "custom expression",
     title: `y = ${clean}`,
+    latex: tex`y = ${node.toTex({
+      parenthesis: "auto",
+      handler: Object.fromEntries(
+        Object.keys(REAL_TRIG_SCOPE).map((name) => [
+          name,
+          (n: FunctionNode, options: object) =>
+            tex`${trigOperator(name)}\left(${n.args.map((arg) => arg.toTex(options)).join(", ")}\right)`,
+        ]),
+      ),
+    })}`,
     detail:
       "Numerical curve-only marking. Features and written properties are not automatically verified for custom expressions.",
     view,

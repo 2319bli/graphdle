@@ -2024,6 +2024,65 @@ main {
 .property-picker {
   margin-top: 23px;
 }
+
+/* KaTeX is bundled locally, including its fonts, for GitHub Pages. */
+.math-formula {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  vertical-align: middle;
+  padding: 0.2em 0.05em;
+  font-weight: 400;
+  color: inherit;
+}
+.math-display {
+  display: block;
+}
+.math-inline {
+  display: inline-block;
+}
+.math-formula .katex {
+  font-size: 1.08em;
+}
+.math-formula .katex-display {
+  margin: 0.25em 0;
+  text-align: left;
+}
+.math-formula .katex-display > .katex {
+  text-align: left;
+}
+.math-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+}
+.math-detail-part {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  max-width: 100%;
+}
+.math-detail-part > span:first-child {
+  flex-shrink: 0;
+}
+.question-results b:has(.math-formula) {
+  overflow: visible;
+  white-space: normal;
+  font-size: 15px;
+}
+.question-results .math-formula {
+  width: 100%;
+}
+.review-page > .math-details {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+.challenge .math-details {
+  font-size: 12px;
+}
 .property-picker-heading {
   display: flex;
   flex-wrap: wrap;

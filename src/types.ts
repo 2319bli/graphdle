@@ -48,7 +48,10 @@ export interface PlotQuestion {
   id: string;
   family: string;
   title: string;
+  /** Presentation only; the original title and analytic grading stay unchanged. */
+  latex?: string;
   detail: string;
+  detailParts?: (string | { label: string; latex: string })[];
   view: View;
   reference: Point[][];
   features: Features;

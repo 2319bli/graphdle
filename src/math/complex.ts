@@ -7,6 +7,7 @@ import {
 } from "../types";
 import { parametric, point, sampleFunction } from "./geometry";
 import { integer, random, shuffle } from "./random";
+import { tex, signedTerm } from "./latex";
 const families: Record<Difficulty, string[]> = {
   Easy: ["circle", "point", "disk", "line", "vertical", "horizontal"],
   Medium: ["bisector", "ray", "halfplane", "ellipse", "circle", "disk"],
@@ -15,6 +16,8 @@ const families: Record<Difficulty, string[]> = {
 };
 const ztext = (h: number, k: number) =>
   `(${h} ${k < 0 ? "−" : "+"} ${Math.abs(k)}i)`;
+const zlatex = (h: number, k: number) =>
+  tex`\left(${h} ${signedTerm(k)}i\right)`;
 export function complexQuestion(
   seed: string,
   difficulty: Difficulty,
@@ -48,6 +51,7 @@ export function complexQuestion(
   switch (f) {
     case "point":
       q.title = `z = ${h} ${k < 0 ? "−" : "+"} ${Math.abs(k)}i`;
+      q.latex = tex`z = ${h} ${signedTerm(k)}i`;
       q.reference = [];
       q.features.closed = [point(h, k)];
       q.explanation = `Plot the point (${h}, ${k}): real part horizontally, imaginary part vertically.`;
@@ -55,6 +59,7 @@ export function complexQuestion(
     case "circle":
     case "disk":
       q.title = `|z − ${ztext(h, k)}| ${f === "circle" ? "=" : "≤"} ${a}`;
+      q.latex = tex`\left|z - ${zlatex(h, k)}\right| ${f === "circle" ? "=" : tex`\le`} ${a}`;
       q.reference = [circle(h, k, a)];
       if (f === "disk")
         q.region = (p) => (p.x - h) ** 2 + (p.y - k) ** 2 <= a * a;
@@ -62,16 +67,19 @@ export function complexQuestion(
       break;
     case "line":
       q.title = `Im(z) = ${a} Re(z) ${k < 0 ? "−" : "+"} ${Math.abs(k)}`;
+      q.latex = tex`\operatorname{Im}(z) = ${a}\operatorname{Re}(z) ${signedTerm(k)}`;
       q.reference = [[point(-6, -6 * a + k), point(6, 6 * a + k)]];
       q.explanation = `This is the full straight line y = ${a}x + ${k}.`;
       break;
     case "vertical":
       q.title = `Re(z) = ${h}`;
+      q.latex = tex`\operatorname{Re}(z) = ${h}`;
       q.reference = [[point(h, -5), point(h, 5)]];
       q.explanation = `All points with real part ${h} form a vertical line.`;
       break;
     case "horizontal":
       q.title = `Im(z) = ${k}`;
+      q.latex = tex`\operatorname{Im}(z) = ${k}`;
       q.reference = [[point(-6, k), point(6, k)]];
       q.explanation = `All points with imaginary part ${k} form a horizontal line.`;
       break;
@@ -79,6 +87,7 @@ export function complexQuestion(
       const p = point(h - a, k - b),
         s = point(h + a, k + b);
       q.title = `|z − ${ztext(p.x, p.y)}| = |z − ${ztext(s.x, s.y)}|`;
+      q.latex = tex`\left|z - ${zlatex(p.x, p.y)}\right| = \left|z - ${zlatex(s.x, s.y)}\right|`;
       q.reference = [
         [point(h - 10 * b, k + 10 * a), point(h + 10 * b, k - 10 * a)],
       ];
@@ -89,6 +98,7 @@ export function complexQuestion(
       const j = integer(r, 1, 3),
         theta = (j * Math.PI) / 4;
       q.title = `arg(z − ${ztext(h, k)}) = ${j}π/4`;
+      q.latex = tex`\arg\left(z - ${zlatex(h, k)}\right) = \frac{${j}\pi}{4}`;
       q.reference = [
         [
           point(h, k),
@@ -102,6 +112,7 @@ export function complexQuestion(
     }
     case "halfplane":
       q.title = `Re(z) > ${h}`;
+      q.latex = tex`\operatorname{Re}(z) > ${h}`;
       q.reference = [[point(h, -5), point(h, 5)]];
       q.region = (p) => p.x > h;
       q.boundaryDashed = true;
@@ -112,6 +123,7 @@ export function complexQuestion(
         A = b + a,
         B = Math.sqrt(A * A - c * c);
       q.title = `|z − ${c}| + |z + ${c}| = ${2 * A}`;
+      q.latex = tex`|z - ${c}| + |z + ${c}| = ${2 * A}`;
       q.view = { xmin: -7, xmax: 7, ymin: -6, ymax: 6 };
       q.reference = [
         parametric(
@@ -125,6 +137,7 @@ export function complexQuestion(
     }
     case "hyperbola":
       q.title = `Re(z²) = ${a}`;
+      q.latex = tex`\operatorname{Re}(z^2) = ${a}`;
       q.reference = [
         ...sampleFunction(
           (x) => (Math.abs(x) >= Math.sqrt(a) ? Math.sqrt(x * x - a) : NaN),
@@ -141,6 +154,7 @@ export function complexQuestion(
       break;
     case "annulus":
       q.title = `${a} < |z| < ${a + 1}`;
+      q.latex = tex`${a} < |z| < ${a + 1}`;
       q.reference = [circle(0, 0, a), circle(0, 0, a + 1)];
       q.region = (p) =>
         p.x * p.x + p.y * p.y > a * a && p.x * p.x + p.y * p.y < (a + 1) ** 2;
@@ -150,6 +164,7 @@ export function complexQuestion(
     case "sector": {
       const radius = a + 1;
       q.title = `0 < |z| ≤ ${radius}, 0 ≤ arg(z) ≤ π/2`;
+      q.latex = tex`\begin{aligned}0 < |z| &\le ${radius} \\ 0 \le \arg(z) &\le \frac{\pi}{2}\end{aligned}`;
       q.reference = [
         [point(0, 0), point(radius, 0)],
         parametric(
@@ -174,6 +189,7 @@ export function complexQuestion(
         c = radius / 2,
         theta = Math.acos(c / radius);
       q.title = `|z − ${c}| ≤ ${radius} and |z + ${c}| ≤ ${radius}`;
+      q.latex = tex`\begin{aligned}|z - ${c}| &\le ${radius} \\ |z + ${c}| &\le ${radius}\end{aligned}`;
       q.reference = [
         parametric(
           (t) => point(-c + radius * Math.cos(t), radius * Math.sin(t)),
@@ -195,6 +211,7 @@ export function complexQuestion(
     }
     case "squaremap":
       q.title = `Image of Re(z) = ${a} under w = z² (draw in the w-plane)`;
+      q.latex = tex`\begin{gathered}\text{Image of }\operatorname{Re}(z) = ${a}\text{ under }w = z^2 \\ \text{Draw in the }w\text{-plane}\end{gathered}`;
       q.reference = [parametric((t) => point(a * a - t * t, 2 * a * t), -8, 8)];
       q.detail = "The horizontal and vertical axes represent Re(w) and Im(w).";
       q.explanation = `Let z = ${a} + it. Then Re(w) = ${a * a} − t² and Im(w) = ${2 * a}t, a left-opening parabola with vertex (${a * a}, 0).`;
@@ -216,6 +233,7 @@ export function customComplex(input: string, view: View): PlotQuestion {
     ...q,
     id: `custom-${Date.now()}`,
     title: input,
+    latex: undefined,
     view,
     family: "custom locus",
   };
@@ -241,6 +259,7 @@ export function customComplex(input: string, view: View): PlotQuestion {
         ? undefined
         : (p) => (p.x - h) ** 2 + (p.y - k) ** 2 < radius * radius;
     q.boundaryDashed = op === "<";
+    q.latex = tex`\left|z - ${zlatex(h, k)}\right| ${op === "<=" ? tex`\le` : op} ${radius}`;
     q.explanation = `Centre (${h}, ${k}), radius ${radius}. ${op === "=" ? "Draw the circle." : "Shade its interior."}`;
     return q;
   }
@@ -260,6 +279,7 @@ export function customComplex(input: string, view: View): PlotQuestion {
         : (p) =>
             op.startsWith(">") ? (re ? p.x : p.y) > c : (re ? p.x : p.y) < c;
     q.boundaryDashed = op === "<" || op === ">";
+    q.latex = tex`\operatorname{${re ? "Re" : "Im"}}(z) ${op === "<=" ? tex`\le` : op === ">=" ? tex`\ge` : op} ${c}`;
     q.explanation = `${re ? "Vertical" : "Horizontal"} boundary at ${c}. ${op === "=" ? "Draw the full line." : `Shade the ${op.startsWith(">") ? "greater" : "lesser"} side.`}`;
     return q;
   }

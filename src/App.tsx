@@ -34,6 +34,7 @@ import { complexGame, customComplex } from "./math/complex";
 import { gradeNetwork, gradePlot } from "./math/grading";
 import { Plane } from "./components/Plane";
 import { PropertyPicker } from "./components/PropertyPicker";
+import { QuestionDetail, QuestionEquation } from "./components/MathFormula";
 import { serializePropertyTags } from "./math/propertyTags";
 import { NetworkCanvas, NetworkPrompt } from "./components/NetworkCanvas";
 import { getTheme, readHistory, saveHistory } from "./storage";
@@ -864,8 +865,10 @@ export default function App() {
                     ? "SKETCH THIS CURVE"
                     : "DRAW THIS LOCUS"}
               </span>
-              <h2>{q.title}</h2>
-              <p>{q.detail}</p>
+              <h2>
+                <QuestionEquation question={q} />
+              </h2>
+              <QuestionDetail question={q} />
               {q.mode === "function" && !q.curveOnly && !q.practiceOnly && (
                 <p className="feature-instructions">
                   Corners and cusps are recognised from your sketch
@@ -991,7 +994,9 @@ export default function App() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <b>{a.question.title}</b>
+                    <b>
+                      <QuestionEquation question={a.question} compact />
+                    </b>
                     <small>{a.question.family}</small>
                   </div>
                   <strong>
@@ -1056,7 +1061,10 @@ export default function App() {
               <ArrowLeft size={15} /> Back to results
             </button>
             <span className="eyebrow">QUESTION {reviewIndex + 1} REVIEW</span>
-            <h2>{review.question.title}</h2>
+            <h2>
+              <QuestionEquation question={review.question} />
+            </h2>
+            <QuestionDetail question={review.question} />
             <div className="play-layout has-feedback">
               <div>
                 {review.question.mode === "network" ? (

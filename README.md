@@ -29,6 +29,8 @@ Fonts and all runtime dependencies are bundled locally. Once served, gameplay do
 
 Each standard game contains five seeded, parameterised questions from a single mode, worth 100 points each. Easy, Medium, Hard and Expert alter the mathematical families and constraints. Families are shuffled without repetition within a five-question function or complex session. No answer geometry is revealed before submission.
 
+Function and complex equations use **KaTeX/LaTeX notation** in challenges, result lists and answer reviews: stacked fractions, superscripts, function names, absolute-value bars and piecewise cases. Inverse-function domains and principal ranges are typeset too. Custom functions are converted from their validated expression tree, preserving grouping and precedence. Keep entering ordinary expressions such as `(x+1)/(x^2+3)`; the game displays the formatted equation. Free-form practice prompts remain plain text. KaTeX and its fonts ship with the site, with MathML for accessibility and no external rendering service.
+
 ### Function Sketching
 
 47 templates covering lines, quadratics, cubics, reciprocals, exponentials, rational transformations, logarithms, modulus, piecewise curves, removable holes, logarithmic quotients, exponential decay, bounded rational functions, linear/trigonometric sums, implicit and parametric ellipses, x^x, oblique asymptotes, restricted oscillatory functions, rotated hyperbolas, stationary inflections, and rational curves with three branches, plus the complete 24-function trig family:
@@ -89,6 +91,8 @@ Completed standard games store dates, mode, difficulty, totals and per-question 
 ## Architecture
 
 - `src/math/functions.ts` — analytic function generators
+- `src/components/MathFormula.tsx` — accessible LaTeX equations and domain/range rendering
+- `src/math/latex.ts` — shared notation helpers for generated equations
 - `src/math/trigonometry.ts` — full trig-family generators, domains, endpoints and analytic grading features
 - `src/math/trigFunctions.ts` — shared real-valued trig definitions and custom-expression aliases
 - `src/math/customFunction.ts` — lazy-loaded, restricted math.js custom parser
